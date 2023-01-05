@@ -11,6 +11,7 @@ import com.marisaenjel.pengembalianservice.Vo.ResponseTemplateVo;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -30,8 +31,8 @@ public class PengembalianService {
     @Autowired
     private RestTemplate restTemplate;
     
-    public Pengembalian savePengembalian(Pengembalian pengembalian) throws ParseException{
-        ResponseTemplateVOPinjam peminjaman = restTemplate.getForObject("http://localhost:8010/peminjaman/"
+   public Pengembalian savePengembalian(Pengembalian pengembalian) throws ParseException{
+        ResponseTemplateVOPinjam peminjaman = restTemplate.getForObject("http://localhost:8119/peminjaman/"
                 +pengembalian.getPeminjamanId(), ResponseTemplateVOPinjam.class);
         String tglSekarang = simpleDateFormat.format(new Date());
         long terlambat = kurangTanggal(tglSekarang, peminjaman.getPeminjaman().getTglKembali());
@@ -46,7 +47,7 @@ public class PengembalianService {
     public ResponseTemplateVo getPengembalian(Long pengembalianId){
         ResponseTemplateVo vo = new ResponseTemplateVo();
         Pengembalian pengembalian = pengembalianRepository.findByPengembalianId(pengembalianId);
-        ResponseTemplateVOPinjam peminjaman = restTemplate.getForObject("http://localhost:8010/peminjaman/"
+        ResponseTemplateVOPinjam peminjaman = restTemplate.getForObject("http://localhost:8119/peminjaman/"
                 +pengembalian.getPeminjamanId(), ResponseTemplateVOPinjam.class);
         vo.setPengembalian(pengembalian);
         vo.setPeminjaman(peminjaman.getPeminjaman());
@@ -59,5 +60,21 @@ public class PengembalianService {
         long selisih = tgl1.getTime() - tgl2.getTime();
         long selisihHari = selisih / (24 * 60 * 60 * 1000);
         return selisihHari;
+    }
+    
+    public Pengembalian findPengembalianById(Long pengembalianId){
+        return pengembalianRepository.findByPengembalianId(pengembalianId);
+    } 
+     
+    public List<Pengembalian> getAllPengembalian(){
+        return pengembalianRepository.findAll();
+    }
+    
+    public void deletePengembalian(Long pengembalianId) {
+        pengembalianRepository.deleteById(pengembalianId);
+    }
+    
+    public Pengembalian updatePengembalian(Pengembalian pengembalian){
+        return pengembalianRepository.save(pengembalian);
     }
 }
